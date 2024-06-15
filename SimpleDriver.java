@@ -66,13 +66,13 @@ public class SimpleDriver extends Controller {
 
 	public SimpleDriver(){
 		auto = false;
-		train = false;
-		classify = true;
+		train = true;
+		classify = false;
 		trainingAction = new Action();
 		if(train){
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}else if(classify){
-			this.dataRetrivalFileName = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv";
+			this.dataRetrivalFileName = "c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv";
 			knn = new NearestNeighbor(dataRetrivalFileName);
 		}
 	}

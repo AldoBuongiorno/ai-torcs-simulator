@@ -22,7 +22,7 @@ public class SimpleDriver extends Controller {
 	private NearestNeighbor knn;
 	private String dataRetrivalFileName; 
 	public Action trainingAction;
-	public int ch;
+	private char ch;
 
 	/* Costanti di cambio marcia */
 	final int[] gearUp = { 5000, 6000, 6000, 6500, 7000, 0 };
@@ -414,6 +414,10 @@ public class SimpleDriver extends Controller {
         } catch (IOException ex) {
             Logger.getLogger(SimpleDriver.class.getName()).log(Level.SEVERE, null, ex);
         }
+	}
+
+	public void setCh(char ch){
+		this.ch = ch;
 	}
 
 	//Scrittura dati auto su un file csv

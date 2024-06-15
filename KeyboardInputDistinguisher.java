@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 
 public class KeyboardInputDistinguisher {
 
+    private SimpleDriver driver;
     private final Action action;
 
     private boolean checkUpOrW;
@@ -14,8 +15,10 @@ public class KeyboardInputDistinguisher {
     private boolean checkLeftOrA;
     private boolean checkRightOrD;
     private boolean checkShift;
+    public char ch;
 
     public KeyboardInputDistinguisher(SimpleDriver driver) {
+        this.driver = driver;
         this.action = driver.trainingAction;
         this.checkDownOrS = false;
         this.checkLeftOrA = false;
@@ -45,6 +48,7 @@ public class KeyboardInputDistinguisher {
         inputField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                driver.setCh(e.getKeyChar());
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
                     case KeyEvent.VK_W:
@@ -68,28 +72,6 @@ public class KeyboardInputDistinguisher {
                         break;
                 }
             }
-            
-            // public void keyPressed(KeyEvent e) {
-            //     switch (e.getKeyCode()) {
-            //         case KeyEvent.VK_UP:
-            //             action.accelerate = 1.0;
-            //             break;
-            //         case KeyEvent.VK_DOWN:
-            //             action.brake = 1.0;
-            //             action.accelerate = 0.0;
-            //             break;
-            //         case KeyEvent.VK_LEFT:
-            //             action.steering = +1;
-            //             break;
-            //         case KeyEvent.VK_RIGHT:
-            //             action.steering = -1;
-            //             break;
-            //         case KeyEvent.VK_SHIFT: //shift for reverse
-            //             action.gear = -1;
-            //             action.accelerate = 1.0;
-            //             break;
-            //     }
-            // }
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -120,26 +102,6 @@ public class KeyboardInputDistinguisher {
                         break;
                 }
             }
-            // public void keyReleased(KeyEvent e) {
-            //     switch (e.getKeyCode()) {
-            //         case KeyEvent.VK_UP:
-            //             action.accelerate = 0.0;
-            //             break;
-            //         case KeyEvent.VK_DOWN:
-            //             action.brake = 0.0;
-            //             break;
-            //         case KeyEvent.VK_LEFT:
-            //             action.steering = 0.0;
-            //             break;
-            //         case KeyEvent.VK_RIGHT:
-            //             action.steering = 0.0;
-            //             break;
-            //         case KeyEvent.VK_SHIFT:
-            //             action.gear = 0;
-            //             action.accelerate = 0.0;
-            //             break;
-            //     }
-            // }
         });
         frame.setVisible(true);
     }
@@ -153,35 +115,18 @@ public class KeyboardInputDistinguisher {
             action.accelerate = Math.min(action.accelerate + 0.2, 1.0);
             // action.steering = 0;
             action.brake = 0;
-            return;
-        // }else if(!checkUpOrW){
-        //     if (action.accelerate > 0) {
-        //         action.accelerate = Math.max(action.accelerate - 0.02, 0);
-        //     }
-        //     action.steering = 0;
-        //     action.brake = 0;
         }else if(checkDownOrS){
             if(action.accelerate >= 0 || action.brake < 1){
                 action.steering = 0;
                 action.accelerate = Math.max(action.accelerate - 0.02, 0);
                 action.brake += 0.2;
             }
-            return;
         }else if(checkLeftOrA){
-            // if (action.steering < 0) {
-            //     action.steering = 0;
-            // }
-            // if()
             action.steering = Math.min(action.steering + 0.03, 1.0);
             action.accelerate = Math.max(action.accelerate - 0.05, 0.4);
-            return;
         }else if(checkRightOrD){
-            // if (action.steering > 0) {
-            //     action.steering = 0;
-            // }
             action.steering = Math.max(action.steering - 0.03, -1.0);
             action.accelerate = Math.max(action.accelerate - 0.05, 0.4);
-            return;
         }else if(checkShift){
             action.gear = -1;
             action.clutch = 1;
@@ -191,7 +136,6 @@ public class KeyboardInputDistinguisher {
                 action.steering += 0.1;
             }
             action.accelerate = 0.4;
-            return;
         }
     }
 }

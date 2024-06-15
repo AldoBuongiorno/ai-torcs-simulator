@@ -308,16 +308,11 @@ public class SimpleDriver extends Controller {
 			sensors.getTrackEdgeSensors()[9],
 			sensors.getTrackEdgeSensors()[12],
 			sensors.getTrackEdgeSensors()[15],
-			sensors.getAngleToTrackAxis(),
-			trainingAction.accelerate,
-			trainingAction.brake,
-			trainingAction.steering,
-			trainingAction.gear,
-			trainingAction.clutch
+			sensors.getAngleToTrackAxis()
 
 		);
 		int classLabel = knn.classify(datas, k);
-
+		System.out.println(classLabel);
 
 	}
 
@@ -437,11 +432,11 @@ public class SimpleDriver extends Controller {
             bw.append(sensors.getTrackEdgeSensors()[15] + "; ");
             bw.append(sensors.getAngleToTrackAxis() + "; ");
 			bw.append(
-				(ch == 'w' ? String.valueOf(1)
-				: ch == 's' ? String.valueOf(2)
-				: ch == 'a' ? String.valueOf(3)
-				: ch == 'd' ? String.valueOf(4)
-				: String.valueOf(5)) + '\n'
+				(ch == 'w' ? String.valueOf(0)
+				: ch == 's' ? String.valueOf(1)
+				: ch == 'a' ? String.valueOf(2)
+				: ch == 'd' ? String.valueOf(3)
+				: String.valueOf(4)) + '\n'
 			);
 			flag = false;
             

@@ -21,7 +21,7 @@ public class NearestNeighbor {
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();
         this.kdtree = null;
-        this.classCounts = new int[10]; // Assuming classes are labeled 0-9
+        this.classCounts = new int[6]; // Assuming classes are labeled 0-9
         this.firstLineOfTheFile = "speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel";
         this.readPointsFromCSV(filename);
         

@@ -4,7 +4,6 @@ package scr;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-// import java.lang.ModuleLayer.Controller;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,13 +66,13 @@ public class SimpleDriver extends Controller {
 
 	public SimpleDriver(){
 		auto = false;
-		train = false;
-		classify = true;
+		train = true;
+		classify = false;
 		trainingAction = new Action();
 		if(train){
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}else if(classify){
-			this.dataRetrivalFileName = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv";
+			this.dataRetrivalFileName = "c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv";
 			knn = new NearestNeighbor(dataRetrivalFileName);
 		}
 	}
@@ -314,7 +313,6 @@ public class SimpleDriver extends Controller {
 		);
 		int classLabel = knn.classify(datas, k);
 		System.out.println(classLabel);
-		automatic(classLabel);
 
 	}
 
@@ -438,8 +436,7 @@ public class SimpleDriver extends Controller {
 				: ch == 's' ? String.valueOf(1)
 				: ch == 'a' ? String.valueOf(2)
 				: ch == 'd' ? String.valueOf(3)
-				: ch == 'r' ? String.valueOf(5)
-				: String.valueOf(6)) + '\n'
+				: String.valueOf(4)) + '\n'
 			);
 			flag = false;
             
@@ -448,66 +445,4 @@ public class SimpleDriver extends Controller {
         }
     }
 
-	
-
-	private void automatic(int classLabel) {
-        switch (classLabel) {
-            case 1 : {
-                accelera();
-				break;
-            }
-            case 2 : {
-                frena();
-				break;
-            }
-            case 3 : {
-                sterzaSX();
-				break;
-            }
-            case 4 : {
-                sterzaDX();
-				break;
-            }
-            case 5 : {
-                retro();
-				break;
-            }
-			default : {
-				accelera();
-				break;
-			}
-        }
-    }
-
-	private void accelera(){
-		trainingAction.accelerate = Math.min(trainingAction.accelerate + 0.2, 1.0);
-		trainingAction.brake = 0;
-    }
-
-    private void frena(){
-        trainingAction.steering = 0;
-		trainingAction.accelerate = Math.max(trainingAction.accelerate - 0.02, 0);
-		trainingAction.brake += 0.2;
-    }
-
-    private void sterzaSX(){
-		trainingAction.steering = Math.min(trainingAction.steering + 0.03, 1.0);
-		trainingAction.accelerate = Math.max(trainingAction.accelerate - 0.05, 0.4);
-    }
-
-    private void sterzaDX(){
-        trainingAction.steering = Math.max(trainingAction.steering - 0.03, -1.0);
-        trainingAction.accelerate = Math.max(trainingAction.accelerate - 0.05, 0.4);
-    }
-
-    private void retro(){
-		trainingAction.gear = -1;
-		trainingAction.clutch = 1;
-		if (trainingAction.steering > 0) {
-			trainingAction.steering -= 0.1;
-		} else if (trainingAction.steering < 0) {
-			trainingAction.steering += 0.1;
-		}
-		trainingAction.accelerate = 0.4;
-    }
 }

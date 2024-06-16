@@ -14,7 +14,7 @@ public class TrainingData {
     
     //Costruttore standard
     public TrainingData(double speed, double trackPosition, double trackEdgeSensor3, double trackEdgeSensor6, 
-        double trackEdgeSensor9, double trackEdgeSensor12, double trackEdgeSensor15, double angleToTrackAxis, int classLabel) {
+                        double trackEdgeSensor9, double trackEdgeSensor12, double trackEdgeSensor15, double angleToTrackAxis, int classLabel) {
         this.speed = speed;
         this.trackPosition = trackPosition;
         this.trackEdgeSensor3 = trackEdgeSensor3;
@@ -27,7 +27,7 @@ public class TrainingData {
     }
 
     public TrainingData(double speed, double trackPosition, double trackEdgeSensor3, double trackEdgeSensor6, 
-        double trackEdgeSensor9, double trackEdgeSensor12, double trackEdgeSensor15, double angleToTrackAxis) {
+                        double trackEdgeSensor9, double trackEdgeSensor12, double trackEdgeSensor15, double angleToTrackAxis) {
         this.speed = speed;
         this.trackPosition = trackPosition;
         this.trackEdgeSensor3 = trackEdgeSensor3;

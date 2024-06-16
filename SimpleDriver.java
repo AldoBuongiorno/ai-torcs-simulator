@@ -438,8 +438,8 @@ public class SimpleDriver extends Controller {
 				: ch == 's' ? String.valueOf(1)
 				: ch == 'a' ? String.valueOf(2)
 				: ch == 'd' ? String.valueOf(3)
-				: ch == 'r' ? String.valueOf(5)
-				: String.valueOf(6)) + '\n'
+				: ch == 'r' ? String.valueOf(4)
+				: String.valueOf(5)) + '\n'
 			);
 			flag = false;
             
@@ -452,23 +452,23 @@ public class SimpleDriver extends Controller {
 
 	private void automatic(int classLabel) {
         switch (classLabel) {
-            case 1 : {
+            case 0 : {
                 accelera();
 				break;
             }
-            case 2 : {
+            case 1 : {
                 frena();
 				break;
             }
-            case 3 : {
+            case 2 : {
                 sterzaSX();
 				break;
             }
-            case 4 : {
+            case 3 : {
                 sterzaDX();
 				break;
             }
-            case 5 : {
+            case 4 : {
                 retro();
 				break;
             }

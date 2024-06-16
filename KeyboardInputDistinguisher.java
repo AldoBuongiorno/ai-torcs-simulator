@@ -14,7 +14,7 @@ public class KeyboardInputDistinguisher {
     private boolean checkDownOrS;
     private boolean checkLeftOrA;
     private boolean checkRightOrD;
-    private boolean checkShift;
+    private boolean checkR;
     public char ch;
 
     public KeyboardInputDistinguisher(SimpleDriver driver) {
@@ -23,7 +23,7 @@ public class KeyboardInputDistinguisher {
         this.checkDownOrS = false;
         this.checkLeftOrA = false;
         this.checkRightOrD = false;
-        this.checkShift = false;
+        this.checkR = false;
         this.checkUpOrW = false;
 
         Timer timer = new Timer(50, e -> update());
@@ -67,8 +67,8 @@ public class KeyboardInputDistinguisher {
                     case KeyEvent.VK_D:
                         checkRightOrD = true;
                         break;
-                    case KeyEvent.VK_SHIFT:
-                        checkShift = true;
+                    case KeyEvent.VK_R:
+                        checkR = true;
                         break;
                 }
             }
@@ -95,8 +95,8 @@ public class KeyboardInputDistinguisher {
                         checkRightOrD = false;
                         action.steering = 0;
                         break;
-                    case KeyEvent.VK_SHIFT:
-                        checkShift = false;
+                    case KeyEvent.VK_R:
+                        checkR = false;
                         action.gear = 0;
                         action.accelerate = 0;
                         break;
@@ -127,7 +127,7 @@ public class KeyboardInputDistinguisher {
         }else if(checkRightOrD){
             action.steering = Math.max(action.steering - 0.03, -1.0);
             action.accelerate = Math.max(action.accelerate - 0.05, 0.4);
-        }else if(checkShift){
+        }else if(checkR){
             action.gear = -1;
             action.clutch = 1;
             if (action.steering > 0) {

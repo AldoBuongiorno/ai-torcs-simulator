@@ -19,7 +19,7 @@ class KDTree {
 
     public KDTree(List<TrainingData> points) {
         root = buildTree(points, 0);
-        this.dim = 9;
+        this.dim = 6;
     }
 
     private static class KDNode {

@@ -53,7 +53,6 @@ public class KeyboardInputDistinguisher {
                     case KeyEvent.VK_UP:
                     case KeyEvent.VK_W:
                         checkUpOrW = true;
-                        // action.accelerate = 1.0;
                         return;
                     case KeyEvent.VK_DOWN:
                     case KeyEvent.VK_S:
@@ -108,12 +107,7 @@ public class KeyboardInputDistinguisher {
 
     public void update(){
         if(checkUpOrW){
-            // if (action.accelerate == 1.0) {
-            //     // action.accelerate = Math.min(action.accelerate + 0.02, 1.0);
-            //     action.gear += 1;
-            // }
             action.accelerate = Math.min(action.accelerate + 0.2, 1.0);
-            // action.steering = 0;
             action.brake = 0;
         }else if(checkDownOrS){
             if(action.accelerate >= 0 || action.brake < 1){

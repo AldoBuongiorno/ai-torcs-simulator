@@ -107,6 +107,9 @@ public class TrainingData {
             case 7 -> {
                 return angleToTrackAxis;
             }
+            case 8 -> {
+                return classLabel;
+            }
             default -> throw new IllegalArgumentException("Invalid data-key: " + dataKey);
         }
     }

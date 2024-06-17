@@ -67,8 +67,8 @@ public class SimpleDriver extends Controller {
 
 	public SimpleDriver(){
 		auto = false;
-		train = true;
-		classify = false;
+		train = false;
+		classify = true;
 		trainingAction = new Action();
 		if(train){
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
@@ -295,6 +295,11 @@ public class SimpleDriver extends Controller {
 		}
 
 		if (classify) {
+			int k = 4;
+			int classLabel = knn.classify(datas, k);
+			System.out.println(classLabel);
+			knn.printClassDistribution();
+			automatic(classLabel);
 			controlKNN(sensors);
 			return trainingAction;
 		}
@@ -319,7 +324,7 @@ public class SimpleDriver extends Controller {
 
 		);
 		int classLabel = knn.classify(datas, k);
-		System.out.println(classLabel);
+		knn.printClassDistribution();
 		automatic(classLabel);
 
 	}
@@ -411,13 +416,13 @@ public class SimpleDriver extends Controller {
 	}
 
 	//i dati delle sessione di registrazione dati vecchie vengono sovrascritti
-	static {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv"))) {
-            bw.write(""); 								//cancella il contenuto del file
-        } catch (IOException ex) {
-            Logger.getLogger(SimpleDriver.class.getName()).log(Level.SEVERE, null, ex);
-        }
-	}
+	// static {
+    //     try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv"))) {
+    //         bw.write(""); 								//cancella il contenuto del file
+    //     } catch (IOException ex) {
+    //         Logger.getLogger(SimpleDriver.class.getName()).log(Level.SEVERE, null, ex);
+    //     }
+	// }
 
 	public void setCh(char ch){
 		this.ch = ch;

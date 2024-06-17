@@ -18,8 +18,8 @@ class KDTree {
     private final int dim; // Number of dimensions
 
     public KDTree(List<TrainingData> points) {
-        root = buildTree(points, 0);
         this.dim = 6;
+        root = buildTree(points, this.dim);
     }
 
     private static class KDNode {
@@ -35,7 +35,7 @@ class KDTree {
         if (points.isEmpty()) {
             return null;
         }
-
+        System.out.println(this.dim);
         int axis = depth % this.dim; 
         points.sort(Comparator.comparingDouble(p -> p.getData(axis)));
         int medianIndex = points.size() / 2;

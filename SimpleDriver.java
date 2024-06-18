@@ -67,7 +67,7 @@ public class SimpleDriver extends Controller {
 
 	public SimpleDriver(){
 		auto = false;
-		train = false;
+		train = true;
 		classify = true;
 		trainingAction = new Action();
 		if(train){
@@ -79,7 +79,7 @@ public class SimpleDriver extends Controller {
 			 * Gaetano: 
 			 * Raffaele: 
 			*/
-			this.dataRetrivalFileName = "c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv";
+			this.dataRetrivalFileName = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv";
 			knn = new NearestNeighbor(dataRetrivalFileName);
 		}
 	}
@@ -295,11 +295,11 @@ public class SimpleDriver extends Controller {
 		}
 
 		if (classify) {
-			int k = 4;
-			int classLabel = knn.classify(datas, k);
-			System.out.println(classLabel);
-			knn.printClassDistribution();
-			automatic(classLabel);
+			// int k = 4;
+			// int classLabel = knn.classify(datas, k);
+			// System.out.println(classLabel);
+			// knn.printClassDistribution();
+			// automatic(classLabel);
 			controlKNN(sensors);
 			return trainingAction;
 		}
@@ -434,7 +434,8 @@ public class SimpleDriver extends Controller {
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv", true))) {
 			if(flag)
-				bw.append("speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel\n");
+				bw.append("speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;" +
+				"trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel\n");
 			//sensor data
 			bw.append(Double.toHexString(sensors.getSpeed()) + ';');
 			bw.append(sensors.getTrackPosition() + "; ");

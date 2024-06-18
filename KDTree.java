@@ -1,6 +1,7 @@
 package scr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -16,9 +17,13 @@ class KDTree {
 
     private KDNode root;
     private final int dim; // Number of dimensions
+    private double[] minValues;
+    private double[] maxValues;
 
     public KDTree(List<TrainingData> points) {
-        this.dim = 6;
+        this.dim = 8;
+        calculateMinMaxValues(points);
+        normalizeData(points);
         root = buildTree(points, this.dim);
     }
 
@@ -31,11 +36,36 @@ class KDTree {
         }
     }
 
+    private void calculateMinMaxValues(List<TrainingData> points) {
+        minValues = new double[dim];
+        maxValues = new double[dim];
+        Arrays.fill(minValues, Double.MAX_VALUE);
+        Arrays.fill(maxValues, Double.MIN_VALUE);
+
+        for (TrainingData point : points) {
+            for (int i = 0; i < dim; i++) {
+                double value = point.getData(i);
+                if (value < minValues[i]) {
+                    minValues[i] = value;
+                }
+                if (value > maxValues[i]) {
+                    maxValues[i] = value;
+                }
+            }
+        }
+    }
+
+    private void normalizeData(List<TrainingData> points) {
+        for (TrainingData point : points) {
+            point.normalize(minValues, maxValues);
+        }
+    }
+
     private KDNode buildTree(List<TrainingData> points, int depth) {
         if (points.isEmpty()) {
             return null;
         }
-        System.out.println(this.dim);
+        // System.out.println(this.dim);
         int axis = depth % this.dim; 
         points.sort(Comparator.comparingDouble(p -> p.getData(axis)));
         int medianIndex = points.size() / 2;

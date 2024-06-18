@@ -2,14 +2,14 @@ package scr;
 
 public class TrainingData {
     //speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel
-    private final double speed;
-    private final double angleToTrackAxis;
-    private final double trackPosition;
-    private final double trackEdgeSensor3;
-    private final double trackEdgeSensor6;
-    private final double trackEdgeSensor9;
-    private final double trackEdgeSensor12;
-    private final double trackEdgeSensor15;
+    private double speed;
+    private double trackPosition;
+    private double trackEdgeSensor3;
+    private double trackEdgeSensor6;
+    private double trackEdgeSensor9;
+    private double trackEdgeSensor12;
+    private double trackEdgeSensor15;
+    private double angleToTrackAxis;
     public int classLabel;
     
     //Costruttore standard
@@ -114,4 +114,18 @@ public class TrainingData {
         }
     }
 
+    public void normalize(double[] minValues, double[] maxValues) {
+        this.speed = normalizeValue(this.speed, minValues[0], maxValues[0]);
+        this.trackPosition = normalizeValue(this.trackPosition, minValues[1], maxValues[1]);
+        this.trackEdgeSensor3 = normalizeValue(this.trackEdgeSensor3, minValues[2], maxValues[2]);
+        this.trackEdgeSensor6 = normalizeValue(this.trackEdgeSensor6, minValues[3], maxValues[3]);
+        this.trackEdgeSensor9 = normalizeValue(this.trackEdgeSensor9, minValues[4], maxValues[4]);
+        this.trackEdgeSensor12 = normalizeValue(this.trackEdgeSensor12, minValues[5], maxValues[5]);
+        this.trackEdgeSensor15 = normalizeValue(this.trackEdgeSensor15, minValues[6], maxValues[6]);
+        this.angleToTrackAxis = normalizeValue(this.angleToTrackAxis, minValues[7], maxValues[7]);
+    }
+
+    private double normalizeValue(double value, double min, double max) {
+        return (value - min) / (max - min);
+    }
 }

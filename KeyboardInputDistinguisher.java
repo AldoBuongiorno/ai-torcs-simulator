@@ -53,7 +53,7 @@ public class KeyboardInputDistinguisher {
                     case KeyEvent.VK_UP:
                     case KeyEvent.VK_W:
                         checkUpOrW = true;
-                        return;
+                        break;
                     case KeyEvent.VK_DOWN:
                     case KeyEvent.VK_S:
                         checkDownOrS = true;

@@ -71,13 +71,13 @@ public class SimpleDriver extends Controller {
 
 	public SimpleDriver(){
 		auto = false;
-		train = true;
+		train = false;
 		classify = true;
 		trainingAction = new Action();
 		maxValues = new HashMap<String, Double>();
 		minValues = new HashMap<String, Double>();
 
-		maxValues.put("speed", 170.0);
+		maxValues.put("speed", 210.0);
 		maxValues.put("trackPosition", 1.0);
 		maxValues.put("trackEdgeSensor4", 200.0);
 		maxValues.put("trackEdgeSensor6", 200.0);
@@ -88,7 +88,7 @@ public class SimpleDriver extends Controller {
 		maxValues.put("trackEdgeSensor14", 200.0);
 		maxValues.put("angleToTrackAxis", Math.PI);
 
-		minValues.put("speed", 0.0);
+		minValues.put("speed", -0.01);
 		minValues.put("trackPosition", -1.0);
 		minValues.put("trackEdgeSensor4", 0.0);
 		minValues.put("trackEdgeSensor6", 0.0);
@@ -339,7 +339,7 @@ public class SimpleDriver extends Controller {
 	}
 
 	public void controlKNN(SensorModel sensors){
-		int k = 4;
+		int k = 10;
 
 		TrainingData datas = new TrainingData(
 			sensors.getSpeed(),
@@ -488,11 +488,11 @@ public class SimpleDriver extends Controller {
 				"trackEdgeSensor4;trackEdgeSensor5;trackEdgeSensor6;trackEdgeSensor7;trackEdgeSensor8;trackEdgeSensor9;" +
 				"trackEdgeSensor10;trackEdgeSensor11;trackEdgeSensor12;trackEdgeSensor13;trackEdgeSensor14;trackEdgeSensor15;" +				
 				"trackEdgeSensor16;trackEdgeSensor17;trackEdgeSensor18;angleToTrackAxis;classLabel" + '\n'); */
-			bw.append("speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;trackEdgeSensor8;trackEdgeSensor9"
+			bw.append("speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;trackEdgeSensor8;trackEdgeSensor9;"
 				+ "trackEdgeSensor10;trackEdgeSensor12;trackEdgeSensor14;angleToTrackAxis;classLabel" + '\n');
 			//sensor data
-			bw.append(Double.toString(sensors.getSpeed()) + ';');
-			bw.append(normalizeSensorValue(sensors.getTrackPosition(), "speed") + "; ");
+			bw.append(normalizeSensorValue(sensors.getSpeed(), "speed") + ";");
+			bw.append(normalizeSensorValue(sensors.getTrackPosition(), "trackPosition") + "; ");
 			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[4], "trackEdgeSensor4") + "; ");
 			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[6], "trackEdgeSensor6") + "; ");
 			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[8], "trackEdgeSensor8") + "; ");

@@ -62,7 +62,7 @@ public class TrainingData {
         this.trackEdgeSensor12 = Double.parseDouble(parts[7].trim());
         this.trackEdgeSensor14 = Double.parseDouble(parts[8].trim());
         this.angleToTrackAxis = Double.parseDouble(parts[9].trim());
-        this.classLabel = Integer.parseInt(parts[11].trim());
+        this.classLabel = Integer.parseInt(parts[10].trim());
     }
 
     public int getClassLabel(){

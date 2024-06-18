@@ -21,9 +21,9 @@ public class NearestNeighbor {
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();
         this.kdtree = null;
-        this.classCounts = new int[6]; // Assuming classes are labeled 0-9
-        this.firstLineOfTheFile = "speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;" +
-        "trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel";
+        this.classCounts = new int[6]; 
+        this.firstLineOfTheFile = "speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;" +
+        "trackEdgeSensor8;trackEdgeSensor9;trackEdgeSensor10;trackEdgeSensor12;trackEdgeSensor14;angleToTrackAxis;classLabel";
         this.readPointsFromCSV(filename);
         
         //Stampa la distribuzione delle classi
@@ -36,7 +36,8 @@ public class NearestNeighbor {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith("speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel")) {
+                if (line.startsWith("speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;trackEdgeSensor8;" 
+                    + "trackEdgeSensor9;trackEdgeSensor10;trackEdgeSensor12;trackEdgeSensor14;angleToTrackAxis;classLabel")) {
                     continue; // Skip header
                 }
                 // Aggiungo il campione richiamando il costruttore che prende come input la stringa letta

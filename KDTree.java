@@ -17,14 +17,14 @@ class KDTree {
 
     private KDNode root;
     private final int dim; // Number of dimensions
-    private double[] minValues;
-    private double[] maxValues;
+    /* private double[] minValues;
+    private double[] maxValues; */
 
     public KDTree(List<TrainingData> points) {
-        this.dim = 8;
-        calculateMinMaxValues(points);
-        normalizeData(points);
-        root = buildTree(points, this.dim);
+        this.dim = 10;
+        /* calculateMinMaxValues(points);
+        normalizeData(points); */
+        root = buildTree(points, 0);
     }
 
     private static class KDNode {
@@ -36,7 +36,7 @@ class KDTree {
         }
     }
 
-    private void calculateMinMaxValues(List<TrainingData> points) {
+    /* private void calculateMinMaxValues(List<TrainingData> points) {
         minValues = new double[dim];
         maxValues = new double[dim];
         Arrays.fill(minValues, Double.MAX_VALUE);
@@ -59,7 +59,7 @@ class KDTree {
         for (TrainingData point : points) {
             point.normalize(minValues, maxValues);
         }
-    }
+    } */
 
     private KDNode buildTree(List<TrainingData> points, int depth) {
         if (points.isEmpty()) {

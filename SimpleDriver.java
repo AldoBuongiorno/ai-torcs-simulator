@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 // import java.lang.ModuleLayer.Controller;
+import java.util.HashMap;
+// import java.lang.ModuleLayer.Controller;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +26,8 @@ public class SimpleDriver extends Controller {
 	private String dataRetrivalFileName; 
 	public Action trainingAction;
 	private char ch;
+	private final HashMap<String, Double> maxValues; 
+	private final HashMap<String, Double> minValues; 
 
 	/* Costanti di cambio marcia */
 	final int[] gearUp = { 5000, 6000, 6000, 6500, 7000, 0 };
@@ -70,6 +74,31 @@ public class SimpleDriver extends Controller {
 		train = true;
 		classify = true;
 		trainingAction = new Action();
+		maxValues = new HashMap<String, Double>();
+		minValues = new HashMap<String, Double>();
+
+		maxValues.put("speed", 170.0);
+		maxValues.put("trackPosition", 1.0);
+		maxValues.put("trackEdgeSensor4", 200.0);
+		maxValues.put("trackEdgeSensor6", 200.0);
+		maxValues.put("trackEdgeSensor8", 200.0);
+		maxValues.put("trackEdgeSensor9", 200.0);
+		maxValues.put("trackEdgeSensor10", 200.0);
+		maxValues.put("trackEdgeSensor12", 200.0);
+		maxValues.put("trackEdgeSensor14", 200.0);
+		maxValues.put("angleToTrackAxis", Math.PI);
+
+		minValues.put("speed", 0.0);
+		minValues.put("trackPosition", -1.0);
+		minValues.put("trackEdgeSensor4", 0.0);
+		minValues.put("trackEdgeSensor6", 0.0);
+		minValues.put("trackEdgeSensor8", 0.0);
+		minValues.put("trackEdgeSensor9", 0.0);
+		minValues.put("trackEdgeSensor10", 0.0);
+		minValues.put("trackEdgeSensor12", 0.0);
+		minValues.put("trackEdgeSensor14", 0.0);
+		minValues.put("angleToTrackAxis", (Math.PI*-1));
+
 		if(train){
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}else if(classify){
@@ -315,16 +344,31 @@ public class SimpleDriver extends Controller {
 		TrainingData datas = new TrainingData(
 			sensors.getSpeed(),
 			sensors.getTrackPosition(),
-			sensors.getTrackEdgeSensors()[3],
+			// sensors.getTrackEdgeSensors()[0],
+			// sensors.getTrackEdgeSensors()[1],
+			// sensors.getTrackEdgeSensors()[2],
+			// sensors.getTrackEdgeSensors()[3],
+			sensors.getTrackEdgeSensors()[4],
+			// sensors.getTrackEdgeSensors()[5],
 			sensors.getTrackEdgeSensors()[6],
+			// sensors.getTrackEdgeSensors()[7],
+			sensors.getTrackEdgeSensors()[8],
 			sensors.getTrackEdgeSensors()[9],
+			sensors.getTrackEdgeSensors()[10],
+			// sensors.getTrackEdgeSensors()[11],
 			sensors.getTrackEdgeSensors()[12],
-			sensors.getTrackEdgeSensors()[15],
+			// sensors.getTrackEdgeSensors()[13],
+			sensors.getTrackEdgeSensors()[14],
+			// sensors.getTrackEdgeSensors()[15],
+			// sensors.getTrackEdgeSensors()[16],
+			// sensors.getTrackEdgeSensors()[17],
+			// sensors.getTrackEdgeSensors()[18],
 			sensors.getAngleToTrackAxis()
 
 		);
 		int classLabel = knn.classify(datas, k);
-		knn.printClassDistribution();
+		System.out.println(classLabel);
+		// knn.printClassDistribution();
 		automatic(classLabel);
 
 	}
@@ -364,7 +408,7 @@ public class SimpleDriver extends Controller {
 
 		// Controlla se la situazione attuale è l'inizio della gara
 		if (sensors.getCurrentLapTime() < clutchDeltaTime && getStage() == Stage.RACE
-				&& sensors.getDistanceRaced() < clutchDeltaRaced)
+			&& sensors.getDistanceRaced() < clutchDeltaRaced)
 			clutch = maxClutch;
 
 		// Regolare il valore attuale della frizione
@@ -428,23 +472,55 @@ public class SimpleDriver extends Controller {
 		this.ch = ch;
 	}
 
+	public double normalizeSensorValue(double value, String sensorIndex){
+		double max = maxValues.get(sensorIndex);
+		double min = minValues.get(sensorIndex);
+		return (value - min) / (max - min);
+	}
+
 	//Scrittura dati auto su un file csv
 	static boolean flag = true;
 	private void exportToCSV(SensorModel sensors) throws IOException {
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv", true))) {
 			if(flag)
-				bw.append("speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;" +
-				"trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel\n");
+				/* bw.append("speed;trackPosition;trackEdgeSensor0;trackEdgeSensor1;trackEdgeSensor2;trackEdgeSensor3;" +
+				"trackEdgeSensor4;trackEdgeSensor5;trackEdgeSensor6;trackEdgeSensor7;trackEdgeSensor8;trackEdgeSensor9;" +
+				"trackEdgeSensor10;trackEdgeSensor11;trackEdgeSensor12;trackEdgeSensor13;trackEdgeSensor14;trackEdgeSensor15;" +				
+				"trackEdgeSensor16;trackEdgeSensor17;trackEdgeSensor18;angleToTrackAxis;classLabel" + '\n'); */
+			bw.append("speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;trackEdgeSensor8;trackEdgeSensor9"
+				+ "trackEdgeSensor10;trackEdgeSensor12;trackEdgeSensor14;angleToTrackAxis;classLabel" + '\n');
 			//sensor data
-			bw.append(Double.toHexString(sensors.getSpeed()) + ';');
-			bw.append(sensors.getTrackPosition() + "; ");
+			bw.append(Double.toString(sensors.getSpeed()) + ';');
+			bw.append(normalizeSensorValue(sensors.getTrackPosition(), "speed") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[4], "trackEdgeSensor4") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[6], "trackEdgeSensor6") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[8], "trackEdgeSensor8") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[9], "trackEdgeSensor9") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[10], "trackEdgeSensor10") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[12], "trackEdgeSensor12") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[14], "trackEdgeSensor14") + "; ");
+			bw.append(normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis") + "; ");
+            /* bw.append(sensors.getTrackEdgeSensors()[0] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[1] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[2] + "; ");
             bw.append(sensors.getTrackEdgeSensors()[3] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[4] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[5] + "; ");
             bw.append(sensors.getTrackEdgeSensors()[6] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[7] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[8] + "; ");
             bw.append(sensors.getTrackEdgeSensors()[9] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[10] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[11] + "; ");
             bw.append(sensors.getTrackEdgeSensors()[12] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[13] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[14] + "; ");
             bw.append(sensors.getTrackEdgeSensors()[15] + "; ");
-            bw.append(sensors.getAngleToTrackAxis() + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[16] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[17] + "; ");
+            bw.append(sensors.getTrackEdgeSensors()[18] + "; ");
+            bw.append(sensors.getAngleToTrackAxis() + "; "); */
 			bw.append(
 				(ch == 'w' ? String.valueOf(0)
 				: ch == 's' ? String.valueOf(1)

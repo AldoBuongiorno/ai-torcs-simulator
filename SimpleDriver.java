@@ -71,8 +71,8 @@ public class SimpleDriver extends Controller {
 
 	public SimpleDriver(){
 		auto = false;
-		train = false;
-		classify = true;
+		train = true;
+		classify = false;
 		trainingAction = new Action();
 		maxValues = new HashMap<String, Double>();
 		minValues = new HashMap<String, Double>();
@@ -324,11 +324,6 @@ public class SimpleDriver extends Controller {
 		}
 
 		if (classify) {
-			// int k = 4;
-			// int classLabel = knn.classify(datas, k);
-			// System.out.println(classLabel);
-			// knn.printClassDistribution();
-			// automatic(classLabel);
 			controlKNN(sensors);
 			return trainingAction;
 		}
@@ -342,28 +337,28 @@ public class SimpleDriver extends Controller {
 		int k = 10;
 
 		TrainingData datas = new TrainingData(
-			sensors.getSpeed(),
-			sensors.getTrackPosition(),
+			normalizeSensorValue(sensors.getSpeed(), "speed"),
+			normalizeSensorValue(sensors.getTrackPosition(), "trackPosition"),
 			// sensors.getTrackEdgeSensors()[0],
 			// sensors.getTrackEdgeSensors()[1],
 			// sensors.getTrackEdgeSensors()[2],
 			// sensors.getTrackEdgeSensors()[3],
-			sensors.getTrackEdgeSensors()[4],
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[4], "trackEdgeSensor4"),
 			// sensors.getTrackEdgeSensors()[5],
-			sensors.getTrackEdgeSensors()[6],
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[6], "trackEdgeSensor6"),			
 			// sensors.getTrackEdgeSensors()[7],
-			sensors.getTrackEdgeSensors()[8],
-			sensors.getTrackEdgeSensors()[9],
-			sensors.getTrackEdgeSensors()[10],
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[8], "trackEdgeSensor8"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[9], "trackEdgeSensor9"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[10], "trackEdgeSensor10"),
 			// sensors.getTrackEdgeSensors()[11],
-			sensors.getTrackEdgeSensors()[12],
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[12], "trackEdgeSensor12"),
 			// sensors.getTrackEdgeSensors()[13],
-			sensors.getTrackEdgeSensors()[14],
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[14], "trackEdgeSensor14"),
 			// sensors.getTrackEdgeSensors()[15],
 			// sensors.getTrackEdgeSensors()[16],
 			// sensors.getTrackEdgeSensors()[17],
 			// sensors.getTrackEdgeSensors()[18],
-			sensors.getAngleToTrackAxis()
+			normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis")
 
 		);
 		int classLabel = knn.classify(datas, k);

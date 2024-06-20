@@ -1,29 +1,14 @@
 package scr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
-import scr.TrainingData;
-
-
-/*
-KD-Tree for an efficient implementation of the K-NN.
-Do not touch!
-*/
 class KDTree {
 
-    private KDNode root;
+    private final KDNode root;
     private final int dim; // Number of dimensions
-    /* private double[] minValues;
-    private double[] maxValues; */
 
     public KDTree(List<TrainingData> points) {
         this.dim = 10;
-        /* calculateMinMaxValues(points);
-        normalizeData(points); */
         root = buildTree(points, 0);
     }
 
@@ -36,56 +21,29 @@ class KDTree {
         }
     }
 
-    /* private void calculateMinMaxValues(List<TrainingData> points) {
-        minValues = new double[dim];
-        maxValues = new double[dim];
-        Arrays.fill(minValues, Double.MAX_VALUE);
-        Arrays.fill(maxValues, Double.MIN_VALUE);
-
-        for (TrainingData point : points) {
-            for (int i = 0; i < dim; i++) {
-                double value = point.getData(i);
-                if (value < minValues[i]) {
-                    minValues[i] = value;
-                }
-                if (value > maxValues[i]) {
-                    maxValues[i] = value;
-                }
-            }
-        }
-    }
-
-    private void normalizeData(List<TrainingData> points) {
-        for (TrainingData point : points) {
-            point.normalize(minValues, maxValues);
-        }
-    } */
-
     private KDNode buildTree(List<TrainingData> points, int depth) {
         if (points.isEmpty()) {
             return null;
         }
-        // System.out.println(this.dim);
-        int axis = depth % this.dim; 
-        points.sort(Comparator.comparingDouble(p -> p.getData(axis)));
+
+        int axis = depth % dim; // Cycle through axes
+        points.sort(Comparator.comparingDouble(p -> p.getCoordinate(axis)));
         int medianIndex = points.size() / 2;
         KDNode node = new KDNode(points.get(medianIndex));
 
-        node.left = buildTree(points.subList(0, medianIndex), depth + 1);
-        node.right = buildTree(points.subList(medianIndex + 1, points.size()), depth + 1);
+        node.left = buildTree(new ArrayList<>(points.subList(0, medianIndex)), depth + 1);
+        node.right = buildTree(new ArrayList<>(points.subList(medianIndex + 1, points.size())), depth + 1);
 
         return node;
     }
 
-    /*
-     * Restituisce i k vicini più prossimi,
-     * ordinando il risultato in base alla distanza così da restituire una lista
-     * in cui è garantito che i vicini più prossimi siano effettivamente in ordine di distanza dal nodo corrente.
-     */
     public List<TrainingData> kNearestNeighbors(TrainingData target, int k) {
-        PriorityQueue<TrainingData> pq = new PriorityQueue<TrainingData>(k, Comparator.comparingDouble(target::distance).reversed());
+        if (k <= 0) {
+            throw new IllegalArgumentException("k must be greater than 0");
+        }
+        PriorityQueue<TrainingData> pq = new PriorityQueue<>(k, Comparator.comparingDouble(target::distance).reversed());
         kNearestNeighbors(root, target, k, 0, pq);
-        List<TrainingData> result = new ArrayList<TrainingData>(pq);
+        List<TrainingData> result = new ArrayList<>(pq);
         result.sort(Comparator.comparingDouble(target::distance));
         return result;
     }
@@ -104,13 +62,18 @@ class KDTree {
         }
 
         int axis = depth % this.dim;
-        KDNode nearNode = (target.getData(axis) < node.point.getData(axis)) ? node.left : node.right;
+        KDNode nearNode = (target.getCoordinate(axis) < node.point.getCoordinate(axis)) ? node.left : node.right;
         KDNode farNode = (nearNode == node.left) ? node.right : node.left;
 
         kNearestNeighbors(nearNode, target, k, depth + 1, pq);
 
-        if (pq.size() < k || Math.abs((target.getData(axis) - node.point.getData(axis))) < target.distance(pq.peek())) {
+        if (pq.size() < k || Math.abs(target.getCoordinate(axis) - node.point.getCoordinate(axis)) < target.distance(pq.peek())) {
             kNearestNeighbors(farNode, target, k, depth + 1, pq);
         }
     }
 }
+
+
+
+
+

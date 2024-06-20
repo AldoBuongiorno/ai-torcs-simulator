@@ -1,160 +1,156 @@
 package scr;
 
+import java.lang.Math;
+
 public class TrainingData {
-    //speed;trackPosition;trackEdgeSensor3;trackEdgeSensor6;trackEdgeSensor9;trackEdgeSensor12;trackEdgeSensor15;angleToTrackAxis;classLabel
+
     private double speed;
-    private double trackPosition;
-    private double trackEdgeSensor4;
-    private double trackEdgeSensor6;
-    private double trackEdgeSensor8;
-    private double trackEdgeSensor9;
-    private double trackEdgeSensor10;
-    private double trackEdgeSensor12;
-    private double trackEdgeSensor14;
-    private double angleToTrackAxis;
-    public int classLabel;
+    private double trackPos;
+    private double trackedgeSensors4;
+    private double trackedgeSensors6;
+    private double trackedgeSensors8;
+    private double trackedgeSensors9;
+    private double trackedgeSensors10;
+    private double trackedgeSensors12;
+    private double trackedgeSensors14;
+    private double angle;
+    public int cls;
+
     
-    //Costruttore standard
-    public TrainingData(double speed, double trackPosition, double trackEdgeSensor4, double trackEdgeSensor6, 
-        double trackEdgeSensor8, double trackEdgeSensor9, double trackEdgeSensor10, double trackEdgeSensor12, 
-        double trackEdgeSensor14, double angleToTrackAxis, int classLabel) {
+    public TrainingData(double speed, double trackPos, double trackedgeSensors4, 
+        double trackedgeSensors6, double trackedgeSensors8, double trackedgeSensors9, double trackedgeSensors10, 
+        double trackedgeSensors12, double trackedgeSensors14, double angle) {
         this.speed = speed;
-        this.trackPosition = trackPosition;
-        this.trackEdgeSensor4 = trackEdgeSensor4;
-        this.trackEdgeSensor6 = trackEdgeSensor6;
-        this.trackEdgeSensor8 = trackEdgeSensor8;
-        this.trackEdgeSensor9 = trackEdgeSensor9;
-        this.trackEdgeSensor10 = trackEdgeSensor10;
-        this.trackEdgeSensor12 = trackEdgeSensor12;
-        this.trackEdgeSensor14 = trackEdgeSensor14;
-        this.angleToTrackAxis = angleToTrackAxis;
-        this.classLabel = classLabel;
+        this.trackPos = trackPos;
+        this.trackedgeSensors4 = trackedgeSensors4;
+        this.trackedgeSensors6 = trackedgeSensors6;
+        this.trackedgeSensors8 = trackedgeSensors8;
+        this.trackedgeSensors9 = trackedgeSensors9;
+        this.trackedgeSensors10 = trackedgeSensors10;
+        this.trackedgeSensors12 = trackedgeSensors12;
+        this.trackedgeSensors14 = trackedgeSensors14;
+        this.angle = angle;
     }
 
-    public TrainingData(double speed, double trackPosition, double trackEdgeSensor4, double trackEdgeSensor6, 
-        double trackEdgeSensor8, double trackEdgeSensor9, double trackEdgeSensor10, double trackEdgeSensor12, 
-        double trackEdgeSensor14, double angleToTrackAxis) {
+    public TrainingData(double speed, double trackPos, double trackedgeSensors4, 
+        double trackedgeSensors6, double trackedgeSensors8, double trackedgeSensors9, double trackedgeSensors10, 
+        double trackedgeSensors12, double trackedgeSensors14, double angle, int cls) {
+        
         this.speed = speed;
-        this.trackPosition = trackPosition;
-        this.trackEdgeSensor4 = trackEdgeSensor4;
-        this.trackEdgeSensor6 = trackEdgeSensor6;
-        this.trackEdgeSensor8 = trackEdgeSensor8;
-        this.trackEdgeSensor9 = trackEdgeSensor9;
-        this.trackEdgeSensor10 = trackEdgeSensor10;
-        this.trackEdgeSensor12 = trackEdgeSensor12;
-        this.trackEdgeSensor14 = trackEdgeSensor14;
-        this.angleToTrackAxis = angleToTrackAxis;
-        this.classLabel = -1;
+        this.trackPos = trackPos;
+        this.trackedgeSensors4 = trackedgeSensors4;
+        this.trackedgeSensors6 = trackedgeSensors6;
+        this.trackedgeSensors8 = trackedgeSensors8;
+        this.trackedgeSensors9 = trackedgeSensors9;
+        this.trackedgeSensors10 = trackedgeSensors10;
+        this.trackedgeSensors12 = trackedgeSensors12;
+        this.trackedgeSensors14 = trackedgeSensors14;
+        this.angle = angle;
+        this.cls = cls; 
     }
 
-    /*
-     * Costruttore funzionale alla lettura del dataset CSV
-    */
-    public TrainingData(String dataLine){
-        String[] parts = dataLine.split(";");
+    public TrainingData(String line) {
+        String[] parts = line.split(";");
         this.speed = Double.parseDouble(parts[0].trim());
-        this.trackPosition = Double.parseDouble(parts[1].trim());
-        this.trackEdgeSensor4 = Double.parseDouble(parts[2].trim());
-        this.trackEdgeSensor6 = Double.parseDouble(parts[3].trim());
-        this.trackEdgeSensor8 = Double.parseDouble(parts[4].trim());
-        this.trackEdgeSensor9 = Double.parseDouble(parts[5].trim());
-        this.trackEdgeSensor10 = Double.parseDouble(parts[6].trim());
-        this.trackEdgeSensor12 = Double.parseDouble(parts[7].trim());
-        this.trackEdgeSensor14 = Double.parseDouble(parts[8].trim());
-        this.angleToTrackAxis = Double.parseDouble(parts[9].trim());
-        this.classLabel = Integer.parseInt(parts[10].trim());
+        this.trackPos = Double.parseDouble(parts[1].trim());
+        this.trackedgeSensors4 = Double.parseDouble(parts[2].trim());
+        this.trackedgeSensors6 = Double.parseDouble(parts[3].trim());
+        this.trackedgeSensors8 = Double.parseDouble(parts[4].trim());
+        this.trackedgeSensors9 = Double.parseDouble(parts[5].trim());
+        this.trackedgeSensors10 = Double.parseDouble(parts[6].trim());
+        this.trackedgeSensors12 = Double.parseDouble(parts[7].trim());
+        this.trackedgeSensors14 = Double.parseDouble(parts[8].trim());
+        this.angle = Double.parseDouble(parts[9].trim());
+        this.cls = Integer.parseInt(parts[10].trim()); // Parse class correctly
     }
 
-    public int getClassLabel(){
-        return this.classLabel;
-    }
-
-    /*
-     * Questo metodo è utilizzato per calcolare la distanza euclidea tra due punti "trainingData"
-     * 'this' e 'object', la quale si calcola sommando i quadrati delle differenze tra i valori corrispondenti di ciascun attributo,
-     * e poi prendendo la radice quadrata del risultato.
-    */ 
-    public double distance(TrainingData object){
+    public double distance(TrainingData other) {
         return Math.sqrt(
-            Math.pow(this.speed - object.speed, 2)
-            + Math.pow(this.angleToTrackAxis - object.angleToTrackAxis, 2)
-            + Math.pow(this.trackEdgeSensor4 - object.trackEdgeSensor4, 2)
-            + Math.pow(this.trackEdgeSensor6 - object.trackEdgeSensor6, 2)
-            + Math.pow(this.trackEdgeSensor8 - object.trackEdgeSensor8, 2)
-            + Math.pow(this.trackEdgeSensor9 - object.trackEdgeSensor9, 2)
-            + Math.pow(this.trackEdgeSensor10 - object.trackEdgeSensor10, 2)
-            + Math.pow(this.trackEdgeSensor12 - object.trackEdgeSensor12, 2)
-            + Math.pow(this.trackEdgeSensor14 - object.trackEdgeSensor14, 2)
-            + Math.pow(this.trackPosition - object.trackPosition, 2)
+            Math.pow(this.speed - other.speed, 2) +
+            Math.pow(this.trackPos - other.trackPos, 2) +
+            Math.pow(this.trackedgeSensors4 - other.trackedgeSensors4, 2) +
+            Math.pow(this.trackedgeSensors6 - other.trackedgeSensors6, 2) +
+            Math.pow(this.trackedgeSensors8 - other.trackedgeSensors8, 2) +
+            Math.pow(this.trackedgeSensors9 - other.trackedgeSensors9, 2) +
+            Math.pow(this.trackedgeSensors10 - other.trackedgeSensors10, 2) +
+            Math.pow(this.trackedgeSensors12 - other.trackedgeSensors12, 2) +
+            Math.pow(this.trackedgeSensors14 - other.trackedgeSensors14, 2) +
+            Math.pow(this.angle - other.angle, 2)
         );
     }
 
-    /*
-     * Ritorna il valore di un attributo specifico in base ad un indice 
-     * Usato nel KD-Tree per scegliere l'asse di divisione.
-     */
-    public double getData(int dataKey) {
-        switch (dataKey) {
+    public double getCoordinate(int axis) {
+        switch (axis) {
             case 0 -> {
                 return speed;
             }
             case 1 -> {
-                return trackPosition;
+                return trackPos;
             }
             case 2 -> {
-                return trackEdgeSensor4;
+                return trackedgeSensors4;
             }
             case 3 -> {
-                return trackEdgeSensor6;
+                return trackedgeSensors6;
             }
             case 4 -> {
-                return trackEdgeSensor8;
+                return trackedgeSensors8;
             }
             case 5 -> {
-                return trackEdgeSensor9;
+                return trackedgeSensors9;
             }
             case 6 -> {
-                return trackEdgeSensor10;
+                return trackedgeSensors10;
             }
             case 7 -> {
-                return trackEdgeSensor12;
+                return trackedgeSensors12;
             }
             case 8 -> {
-                return trackEdgeSensor14;
+                return trackedgeSensors14;
             }
             case 9 -> {
-                return angleToTrackAxis;
+                return angle;
             }
-            default -> throw new IllegalArgumentException("Invalid axis: "  + dataKey);
+            default -> throw new IllegalArgumentException("Invalid axis: "  + axis);
         }
     }
 
-    /* public void normalize(double[] minValues, double[] maxValues) {
-        this.speed = normalizeValue(this.speed, minValues[0], maxValues[0]);
-        this.trackPosition = normalizeValue(this.trackPosition, minValues[1], maxValues[1]);
-        this.trackEdgeSensor0 = normalizeValue(this.trackEdgeSensor0, minValues[2], maxValues[2]);
-        this.trackEdgeSensor1 = normalizeValue(this.trackEdgeSensor1, minValues[3], maxValues[3]);
-        this.trackEdgeSensor2 = normalizeValue(this.trackEdgeSensor2, minValues[4], maxValues[4]);
-        this.trackEdgeSensor3 = normalizeValue(this.trackEdgeSensor3, minValues[5], maxValues[5]);
-        this.trackEdgeSensor4 = normalizeValue(this.trackEdgeSensor4, minValues[6], maxValues[6]);
-        this.trackEdgeSensor5 = normalizeValue(this.trackEdgeSensor5, minValues[7], maxValues[7]);
-        this.trackEdgeSensor6 = normalizeValue(this.trackEdgeSensor6, minValues[8], maxValues[8]);
-        this.trackEdgeSensor7 = normalizeValue(this.trackEdgeSensor7, minValues[9], maxValues[9]);
-        this.trackEdgeSensor8 = normalizeValue(this.trackEdgeSensor8, minValues[10], maxValues[10]);
-        this.trackEdgeSensor9 = normalizeValue(this.trackEdgeSensor9, minValues[11], maxValues[11]);
-        this.trackEdgeSensor10 = normalizeValue(this.trackEdgeSensor10, minValues[12], maxValues[12]);
-        this.trackEdgeSensor11 = normalizeValue(this.trackEdgeSensor11, minValues[13], maxValues[13]);
-        this.trackEdgeSensor12 = normalizeValue(this.trackEdgeSensor12, minValues[14], maxValues[14]);
-        this.trackEdgeSensor13 = normalizeValue(this.trackEdgeSensor13, minValues[15], maxValues[15]);
-        this.trackEdgeSensor14 = normalizeValue(this.trackEdgeSensor14, minValues[16], maxValues[16]);
-        this.trackEdgeSensor15 = normalizeValue(this.trackEdgeSensor15, minValues[17], maxValues[17]);
-        this.trackEdgeSensor16 = normalizeValue(this.trackEdgeSensor16, minValues[18], maxValues[18]);
-        this.trackEdgeSensor17 = normalizeValue(this.trackEdgeSensor17, minValues[19], maxValues[19]);
-        this.trackEdgeSensor18 = normalizeValue(this.trackEdgeSensor18, minValues[20], maxValues[20]);
-        this.angleToTrackAxis = normalizeValue(this.angleToTrackAxis, minValues[21], maxValues[21]);
+
+    /* 
+    //APPLICARE NORMALIZZAZIONE ALL'ALGORITMO
+    public void normalize(double[] minValues, double[] maxValues) {
+        int minTrackEdgeSensor= 0;
+        int maxTrackEdgeSensors= 200;
+        double minSpeed = -70.00;
+        double maxSpeed = 310.00;
+        this.speed = normalizeValue(this.speed, minSpeed, maxSpeed);
+        this.trackPos = normalizeValue(this.trackPos, -1, +1);          //aggiustare min e max basato 
+        this.trackedgeSensors0 = normalizeValue(this.trackedgeSensors0, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors1 = normalizeValue(this.trackedgeSensors1, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors2 = normalizeValue(this.trackedgeSensors2, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors3 = normalizeValue(this.trackedgeSensors3, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors4 = normalizeValue(this.trackedgeSensors4, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors5 = normalizeValue(this.trackedgeSensors5, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors6 = normalizeValue(this.trackedgeSensors6, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors7 = normalizeValue(this.trackedgeSensors7, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors8 = normalizeValue(this.trackedgeSensors8, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors9 = normalizeValue(this.trackedgeSensors9, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors10 = normalizeValue(this.trackedgeSensors10, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors11 = normalizeValue(this.trackedgeSensors11, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors12 = normalizeValue(this.trackedgeSensors12, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors13 = normalizeValue(this.trackedgeSensors13, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors14 = normalizeValue(this.trackedgeSensors14, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors15 = normalizeValue(this.trackedgeSensors15, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors16 = normalizeValue(this.trackedgeSensors16, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors17 = normalizeValue(this.trackedgeSensors17, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.trackedgeSensors18 = normalizeValue(this.trackedgeSensors18, minTrackEdgeSensor, maxTrackEdgeSensors);
+        this.angle = normalizeValue(this.angle, -(Math.PI), +(Math.PI));
     }
 
     private double normalizeValue(double value, double min, double max) {
         return (value - min) / (max - min);
-    } */
+    }
+
+    */
+
 }

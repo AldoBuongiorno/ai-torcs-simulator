@@ -8,22 +8,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 
 public class SimpleDriver extends Controller {
 
 	private final boolean train;
 	private final boolean auto;
-	private final boolean autonomusDriving;
-	public Action trainingAction;
-	public int ch;
+	private final boolean classify;
 	private NearestNeighbor knn;
-    private String filename;
-	private int minTrackEdgeSensor= 0;
-	private int maxTrackEdgeSensor= 200;
-	private double minSpeed = 0;
-	private double maxSpeed1 = 310.00;
-	private double minSpeedReverse = -60.0;
-	private double maxSpeedReverse = -0.001;
+	private String dataRetrievalFileName;
+	public Action trainingAction;
+	private char ch;
+	private final HashMap<String, Double> maxValues; 
+	private final HashMap<String, Double> minValues;
+    
 	private boolean correct = false;
 
 	/* Costanti di cambio marcia */
@@ -69,8 +67,36 @@ public class SimpleDriver extends Controller {
 	public SimpleDriver(){
 		auto = false;
 		train = false;
-		autonomusDriving = true;
+		classify = true;
 		trainingAction = new Action();
+
+		maxValues = new HashMap<String, Double>();
+		minValues = new HashMap<String, Double>();
+
+		maxValues.put("speed", 210.0);
+		maxValues.put("negativeSpeed", -0.001);
+		maxValues.put("trackPosition", 1.0);
+		maxValues.put("trackEdgeSensor4", 200.0);
+		maxValues.put("trackEdgeSensor6", 200.0);
+		maxValues.put("trackEdgeSensor8", 200.0);
+		maxValues.put("trackEdgeSensor9", 200.0);
+		maxValues.put("trackEdgeSensor10", 200.0);
+		maxValues.put("trackEdgeSensor12", 200.0);
+		maxValues.put("trackEdgeSensor14", 200.0);
+		maxValues.put("angleToTrackAxis", Math.PI);
+
+		minValues.put("speed", 0.0);
+		minValues.put("negativeSpeed", -60.0);
+		minValues.put("trackPosition", -1.0);
+		minValues.put("trackEdgeSensor4", 0.0);
+		minValues.put("trackEdgeSensor6", 0.0);
+		minValues.put("trackEdgeSensor8", 0.0);
+		minValues.put("trackEdgeSensor9", 0.0);
+		minValues.put("trackEdgeSensor10", 0.0);
+		minValues.put("trackEdgeSensor12", 0.0);
+		minValues.put("trackEdgeSensor14", 0.0);
+		minValues.put("angleToTrackAxis", (Math.PI*-1));
+
 		if(train){
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv"))) {
 				bw.append("speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;trackEdgeSensor8;trackEdgeSensor9;"
@@ -78,12 +104,17 @@ public class SimpleDriver extends Controller {
 			} catch (IOException ex) {
 				Logger.getLogger(SimpleDriver.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			SwingUtilities.invokeLater(() -> new CharReader(this));
+			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}
-		if (autonomusDriving) {
-            //filename = "C:\\Users\\salva\\Desktop\\Universita\\2023-2024\\AI\\AI-Torcs-Project\\ClientTorcSorgente\\classes\\Torcs_data.csv";
-			filename = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv";
-            knn = new NearestNeighbor(filename);
+		if (classify) {
+            /*
+			 * Aldo: C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv
+			 * Ciro: c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv
+			 * Gaetano: 
+			 * Raffaele: 
+			*/
+			dataRetrievalFileName = "c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv";
+            knn = new NearestNeighbor(dataRetrievalFileName);
         }
 	}
 
@@ -289,19 +320,16 @@ public class SimpleDriver extends Controller {
 		if(train){
 			//esportazione dati su file .csv
 			try{
-				//Thread.sleep(3000);
 				exportToCSV(sensors);
 			}
 			catch(IOException ex){
 				System.err.println("Error: " + ex.getMessage());
-			} /* catch (InterruptedException ex) {
-				System.err.println(ex.getMessage());
-			}  */
+			}
 			return trainingAction;
 		}
 
-		if (autonomusDriving) {
-            predictControl(sensors);
+		if (classify) {
+            controlKNN(sensors);
 			return trainingAction;
         }
 
@@ -396,37 +424,45 @@ public class SimpleDriver extends Controller {
 		return angles;
 	}
 
+	public void setCh(char ch){
+		this.ch = ch;
+	}
+
+	public double normalizeSensorValue(double value, String sensorIndex){
+		double max = maxValues.get(sensorIndex);
+		double min = minValues.get(sensorIndex);
+		return (value - min) / (max - min);
+	}
+
 	//Scrittura dati auto su un file csv
 	private void exportToCSV(SensorModel sensors) throws IOException {
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv", true))) {
 			System.out.println("speed = " + sensors.getSpeed());
 			if(sensors.getSpeed() >= 0) {
-				bw.append(normalize(sensors.getSpeed(), minSpeed, maxSpeed1) + ";");
+				bw.append(normalizeSensorValue(sensors.getSpeed(), "speed") + ";");
 			}
 			else if(sensors.getSpeed() < 0) {
-				bw.append(normalize(sensors.getSpeed(), minSpeedReverse, maxSpeedReverse) + ";");
+				bw.append(normalizeSensorValue(sensors.getSpeed(), "negativeSpeed") + ";");
 			}
-			bw.append(normalize(sensors.getTrackPosition(), -1, +1) + ";");		//aggiustare minimo e massimo
-			bw.append(normalize(sensors.getTrackEdgeSensors()[4] , minTrackEdgeSensor, maxTrackEdgeSensor)+ ";");
-			bw.append(normalize(sensors.getTrackEdgeSensors()[6] , minTrackEdgeSensor, maxTrackEdgeSensor)+ ";");
-			bw.append(normalize(sensors.getTrackEdgeSensors()[8] , minTrackEdgeSensor, maxTrackEdgeSensor)+ ";");
-            bw.append(normalize(sensors.getTrackEdgeSensors()[9] , minTrackEdgeSensor, maxTrackEdgeSensor)+ ";");
-			bw.append(normalize(sensors.getTrackEdgeSensors()[10], minTrackEdgeSensor, maxTrackEdgeSensor) + ";");
-			bw.append(normalize(sensors.getTrackEdgeSensors()[12], minTrackEdgeSensor, maxTrackEdgeSensor) + ";");
-			bw.append(normalize(sensors.getTrackEdgeSensors()[14], minTrackEdgeSensor, maxTrackEdgeSensor) + ";");
-            bw.append(normalize(sensors.getAngleToTrackAxis(),  -(Math.PI), +(Math.PI)) + ";");
+			bw.append(normalizeSensorValue(sensors.getTrackPosition(), "trackPosition") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[4], "trackEdgeSensor4") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[6], "trackEdgeSensor6") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[8], "trackEdgeSensor8") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[9], "trackEdgeSensor9") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[10], "trackEdgeSensor10") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[12], "trackEdgeSensor12") + "; ");
+			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[14], "trackEdgeSensor14") + "; ");
+			bw.append(normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis") + "; ");
 
 			bw.append(
-				(ch == KeyEvent.VK_UP ? String.valueOf(0)
-            	: ch == KeyEvent.VK_DOWN ? String.valueOf(1)
-                : ch == KeyEvent.VK_LEFT ? String.valueOf(2)
-				: ch == KeyEvent.VK_RIGHT ? String.valueOf(3)
-                : ch == KeyEvent.VK_SHIFT ? String.valueOf(4)
-				: String.valueOf(5))
+				(ch == 'w' ? String.valueOf(0)
+				: ch == 's' ? String.valueOf(1)
+				: ch == 'a' ? String.valueOf(2)
+				: ch == 'd' ? String.valueOf(3)
+				: ch == 'r' ? String.valueOf(4)
+				: String.valueOf(5)) + '\n'
 			);
-
-			bw.append('\n');
             
         } catch (IOException ex) {
             Logger.getLogger(SimpleDriver.class.getName()).log(Level.SEVERE, null, ex);
@@ -434,50 +470,45 @@ public class SimpleDriver extends Controller {
 
     }
 
-	private double normalize(double value, double min, double max) {
-		return (value - min) / (max - min);
-	}
-
-	public void predictControl(SensorModel sensors) {
+	public void controlKNN(SensorModel sensors) {
         //valore di k per il K-NN. Se voglio usare NN, allora k=1 altrimenti k= (es) 5
         int k = 3;
 		double speed = 0;
 		if(sensors.getSpeed() >= 0) {
-			speed = normalize(sensors.getSpeed(), minSpeed, maxSpeed1);
+			speed = normalizeSensorValue(sensors.getSpeed(), "speed");
 		}
 		else if(sensors.getSpeed() < 0) {
-			speed = normalize(sensors.getSpeed(), minSpeedReverse, maxSpeedReverse);
+			speed = normalizeSensorValue(sensors.getSpeed(), "negativeSpeed");
 		}
-        TrainingData td = new TrainingData(
+        TrainingData datas = new TrainingData(
 			speed,
-			normalize(sensors.getTrackPosition(), -1, +1),
-			normalize(sensors.getTrackEdgeSensors()[4], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getTrackEdgeSensors()[6], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getTrackEdgeSensors()[8], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getTrackEdgeSensors()[9], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getTrackEdgeSensors()[10], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getTrackEdgeSensors()[12], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getTrackEdgeSensors()[14], minTrackEdgeSensor, maxTrackEdgeSensor),
-			normalize(sensors.getAngleToTrackAxis(), -(Math.PI), +(Math.PI)) 
+			normalizeSensorValue(sensors.getTrackPosition(), "trackPosition"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[4], "trackEdgeSensor4"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[6], "trackEdgeSensor6"),			
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[8], "trackEdgeSensor8"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[9], "trackEdgeSensor9"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[10], "trackEdgeSensor10"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[12], "trackEdgeSensor12"),
+			normalizeSensorValue(sensors.getTrackEdgeSensors()[14], "trackEdgeSensor14"),
+			normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis") 
 		);
-		// td.toString();
-        int predictedClass = knn.classify(td, k);
-        System.out.println(predictedClass);
-        autoControl(predictedClass, sensors);
+
+        int predicted = knn.classify(datas, k);
+        System.out.println(predicted);
+        autonomous(predicted, sensors);
     }
 
 	private int frenaCounter = 0;
 
-	private void autoControl(int cls, SensorModel sensors) {
-
+	private void autonomous(int classLabel, SensorModel sensors) {
+	
 		//correzione dei fuori pista
-		correctOffTrack(sensors);
-
+		offTrackRecovery(sensors);
 		if(correct == false) {
 
-			switch (cls) {
+			switch (classLabel) {
 				case 0 : {
-					accelera(sensors);
+					accelera();
 					break;
 				}
 				case 1 : {
@@ -504,7 +535,7 @@ public class SimpleDriver extends Controller {
 		}
     }
 
-	public void accelera(SensorModel sensor){
+	public void accelera(){
         trainingAction.accelerate = 1.0;
 		trainingAction.steering = 0.0;
 		trainingAction.brake = 0.0;
@@ -541,7 +572,7 @@ public class SimpleDriver extends Controller {
 		trainingAction.brake = 0.0;
 	}
 
-	private void correctOffTrack(SensorModel sensors){
+	private void offTrackRecovery(SensorModel sensors){
 		//rileva fuori pista bordo sx
 		if(sensors.getTrackPosition() > 1.00) {
 			correct = true;

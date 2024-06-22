@@ -15,18 +15,17 @@ public class SimpleDriver extends Controller {
 	private final boolean train;
 	private final boolean auto;
 	private final boolean classify;
-	private NearestNeighbor knn;
-	private String dataRetrievalFileName;
 	public Action trainingAction;
-	private char ch;
+	public int ch;
+	private NearestNeighbor knn;
+    private String filename;
+	private boolean correct = false;
 	private final HashMap<String, Double> maxValues; 
 	private final HashMap<String, Double> minValues;
-    
-	private boolean correct = false;
 
 	/* Costanti di cambio marcia */
-	final int[] gearUp = { 5000, 6000, 6000, 6500, 7000, 0 };
-	final int[] gearDown = { 0, 2500, 3000, 3000, 3500, 3500 };
+	final int[] gearUp = {7500, 8000, 8500, 9000, 9500, 0};
+	final int[] gearDown = {0, 2800, 3200, 4800, 5200, 5000};
 
 	/* Constanti */
 	final int stuckTime = 25;
@@ -73,7 +72,7 @@ public class SimpleDriver extends Controller {
 		maxValues = new HashMap<String, Double>();
 		minValues = new HashMap<String, Double>();
 
-		maxValues.put("speed", 210.0);
+		maxValues.put("speed", 310.0);
 		maxValues.put("negativeSpeed", -0.001);
 		maxValues.put("trackPosition", 1.0);
 		maxValues.put("trackEdgeSensor4", 200.0);
@@ -98,7 +97,7 @@ public class SimpleDriver extends Controller {
 		minValues.put("angleToTrackAxis", (Math.PI*-1));
 
 		if(train){
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv"))) {
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv", true))) {
 				bw.append("speed;trackPosition;trackEdgeSensor4;trackEdgeSensor6;trackEdgeSensor8;trackEdgeSensor9;"
 					+ "trackEdgeSensor10;trackEdgeSensor12;trackEdgeSensor14;angleToTrackAxis;classLabel" + '\n');
 			} catch (IOException ex) {
@@ -107,14 +106,9 @@ public class SimpleDriver extends Controller {
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}
 		if (classify) {
-            /*
-			 * Aldo: C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv
-			 * Ciro: c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv
-			 * Gaetano: 
-			 * Raffaele: 
-			*/
-			dataRetrievalFileName = "c:\\Users\\ciroc\\Desktop\\Torc\\classes\\Torcs_data.csv";
-            knn = new NearestNeighbor(dataRetrievalFileName);
+            //filename = "C:\\Users\\salva\\Desktop\\Universita\\2023-2024\\AI\\AI-Torcs-Project\\ClientTorcSorgente\\classes\\Torcs_data.csv";
+			filename = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv";
+            knn = new NearestNeighbor(filename);
         }
 	}
 
@@ -320,16 +314,19 @@ public class SimpleDriver extends Controller {
 		if(train){
 			//esportazione dati su file .csv
 			try{
+				//Thread.sleep(3000);
 				exportToCSV(sensors);
 			}
 			catch(IOException ex){
 				System.err.println("Error: " + ex.getMessage());
-			}
+			} /* catch (InterruptedException ex) {
+				System.err.println(ex.getMessage());
+			}  */
 			return trainingAction;
 		}
 
 		if (classify) {
-            controlKNN(sensors);
+            predictControl(sensors);
 			return trainingAction;
         }
 
@@ -424,16 +421,6 @@ public class SimpleDriver extends Controller {
 		return angles;
 	}
 
-	public void setCh(char ch){
-		this.ch = ch;
-	}
-
-	public double normalizeSensorValue(double value, String sensorIndex){
-		double max = maxValues.get(sensorIndex);
-		double min = minValues.get(sensorIndex);
-		return (value - min) / (max - min);
-	}
-
 	//Scrittura dati auto su un file csv
 	private void exportToCSV(SensorModel sensors) throws IOException {
 
@@ -456,13 +443,15 @@ public class SimpleDriver extends Controller {
 			bw.append(normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis") + "; ");
 
 			bw.append(
-				(ch == 'w' ? String.valueOf(0)
-				: ch == 's' ? String.valueOf(1)
-				: ch == 'a' ? String.valueOf(2)
-				: ch == 'd' ? String.valueOf(3)
-				: ch == 'r' ? String.valueOf(4)
-				: String.valueOf(5)) + '\n'
+				(ch == KeyEvent.VK_W ? String.valueOf(0)
+            	: ch == KeyEvent.VK_S ? String.valueOf(1)
+                : ch == KeyEvent.VK_A ? String.valueOf(2)
+				: ch == KeyEvent.VK_D ? String.valueOf(3)
+                : ch == KeyEvent.VK_R ? String.valueOf(4)
+				: String.valueOf(5))
 			);
+
+			bw.append('\n');
             
         } catch (IOException ex) {
             Logger.getLogger(SimpleDriver.class.getName()).log(Level.SEVERE, null, ex);
@@ -470,7 +459,13 @@ public class SimpleDriver extends Controller {
 
     }
 
-	public void controlKNN(SensorModel sensors) {
+	public double normalizeSensorValue(double value, String sensorIndex){
+		double max = maxValues.get(sensorIndex);
+		double min = minValues.get(sensorIndex);
+		return (value - min) / (max - min);
+	}
+
+	public void predictControl(SensorModel sensors) {
         //valore di k per il K-NN. Se voglio usare NN, allora k=1 altrimenti k= (es) 5
         int k = 3;
 		double speed = 0;
@@ -500,15 +495,16 @@ public class SimpleDriver extends Controller {
 
 	private int frenaCounter = 0;
 
-	private void autonomous(int classLabel, SensorModel sensors) {
-	
+	private void autonomous(int cls, SensorModel sensors) {
+
 		//correzione dei fuori pista
-		offTrackRecovery(sensors);
+		correctOffTrack(sensors);
+
 		if(correct == false) {
 
-			switch (classLabel) {
+			switch (cls) {
 				case 0 : {
-					accelera();
+					accelera(sensors);
 					break;
 				}
 				case 1 : {
@@ -535,14 +531,14 @@ public class SimpleDriver extends Controller {
 		}
     }
 
-	public void accelera(){
+	public void accelera(SensorModel sensor){
         trainingAction.accelerate = 1.0;
 		trainingAction.steering = 0.0;
 		trainingAction.brake = 0.0;
     }
 
     public void frena(){
-        trainingAction.brake = 0.5;
+        trainingAction.brake = 0.8;
 		trainingAction.accelerate = 0.0;
 		trainingAction.steering = 0.0;
     }
@@ -567,12 +563,12 @@ public class SimpleDriver extends Controller {
     }
 	
 	public void setDefault(){
-		trainingAction.accelerate = 0.8;
+		trainingAction.accelerate = 0.3;
 		trainingAction.steering = 0.0;
 		trainingAction.brake = 0.0;
 	}
 
-	private void offTrackRecovery(SensorModel sensors){
+	private void correctOffTrack(SensorModel sensors){
 		//rileva fuori pista bordo sx
 		if(sensors.getTrackPosition() > 1.00) {
 			correct = true;
@@ -590,14 +586,14 @@ public class SimpleDriver extends Controller {
 	}
 
 	public void offTrackSterzaSX(){
-        trainingAction.steering = +0.25;
-		trainingAction.accelerate = 0.2;
+        trainingAction.steering = +0.15;
+		trainingAction.accelerate = 0.1;
 		trainingAction.brake = 0.0;
     }
 
     public void offTrackSterzaDX(){
-        trainingAction.steering = -0.25;
-		trainingAction.accelerate = 0.2;
+        trainingAction.steering = -0.15;
+		trainingAction.accelerate = 0.1;
 		trainingAction.brake = 0.0;
     }
 

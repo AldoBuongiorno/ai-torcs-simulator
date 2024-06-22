@@ -61,7 +61,7 @@ public class NearestNeighbor {
 
         // Count the occurrences of each class in the k nearest neighbors
         for (TrainingData neighbor : kNearestNeighbors) {
-            classCounts[neighbor.classLabel]++;
+            classCounts[neighbor.cls]++;
         }
 
         // Find the class with the maximum count
@@ -85,7 +85,7 @@ public class NearestNeighbor {
 
     public void printClassDistribution() {
         for (TrainingData data : trainingData) {
-            classCounts[data.classLabel]++;
+            classCounts[data.cls]++;
         }
         for (int i = 0; i < classCounts.length; i++) {
             System.out.println("Class " + i + ": " + classCounts[i]);

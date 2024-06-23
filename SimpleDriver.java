@@ -20,7 +20,7 @@ public class SimpleDriver extends Controller {
 	public Action trainingAction;//Azione controllante la vettura
 	public int ch;//variabile per salvare il codice relativo al tasto premuto 
 	private NearestNeighbor knn;//classificatore
-    private String filename;
+    private String dataRetrievalFileName;
 	private boolean correct = false;
 
 	//Collezioni di valori massimi e minimi relativi ai vari dati caratterizzanti l'autovettura
@@ -111,8 +111,8 @@ public class SimpleDriver extends Controller {
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}
 		if (classify) {
-			filename = "";//Cambiare inserendo il path dov'è locato il file "Torcs_data.csv"
-            knn = new NearestNeighbor(filename);
+			dataRetrievalFileName = "";//Cambiare inserendo il path dov'è locato il file "Torcs_data.csv"
+            knn = new NearestNeighbor(dataRetrievalFileName);
         }
 	}
 

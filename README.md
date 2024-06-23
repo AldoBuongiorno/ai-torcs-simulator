@@ -43,5 +43,4 @@ public SimpleDriver(){
 
 ## Demo
 
-[![Demo](thumbnail.png)]
-(https://drive.google.com/file/d/1A67vD6vv4ZXScZ7-sTTMSULSLt3jzUE8/view?usp=sharing)
+[Click here!](https://drive.google.com/file/d/1A67vD6vv4ZXScZ7-sTTMSULSLt3jzUE8/view?usp=sharing)

@@ -11,8 +11,8 @@ public class NearestNeighbor {
 
     private final List<TrainingData> trainingData;
     private KDTree kdtree;
-    private final int[] classCounts; // VERIFICA NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
-    private final String firstLineOfTheFile; // VERIFICA  NEI COSTRUTTORI CHE QUESTO SIA CONFORME CON QUELLO CHE STAI IPOTIZZANDO!
+    private final int[] classCounts;
+    private final String firstLineOfTheFile;
 
     public NearestNeighbor(String filename) {
         this.trainingData = new ArrayList<>();
@@ -61,7 +61,7 @@ public class NearestNeighbor {
 
         // Count the occurrences of each class in the k nearest neighbors
         for (TrainingData neighbor : kNearestNeighbors) {
-            classCounts[neighbor.cls]++;
+            classCounts[neighbor.classLabel]++;
         }
 
         // Find the class with the maximum count
@@ -85,7 +85,7 @@ public class NearestNeighbor {
 
     public void printClassDistribution() {
         for (TrainingData data : trainingData) {
-            classCounts[data.cls]++;
+            classCounts[data.classLabel]++;
         }
         for (int i = 0; i < classCounts.length; i++) {
             System.out.println("Class " + i + ": " + classCounts[i]);

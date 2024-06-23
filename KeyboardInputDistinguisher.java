@@ -9,9 +9,12 @@ import java.util.Set;
 
 public class KeyboardInputDistinguisher {
 
-    private final SimpleDriver driver;
-    private final Action action;
+    private final SimpleDriver driver; //Oggetto identificante la vettura
+    private final Action action; //Azione associata al driver.
+
     private final Set<Integer> pressedKeys = new HashSet<>();
+
+    //Variabili di controllo
     private boolean checkUpOrW = false;
     private boolean checkDownOrS = false;
     private boolean checkRightOrD = false;
@@ -24,16 +27,24 @@ public class KeyboardInputDistinguisher {
         commandsRetrieval();
     }
 
+    /*
+     * Metodo aggiunto:
+     * il metodo è fondamentale per la configurazione dell’interfaccia 
+     * e del listener intercettante la pressione ed il rilascio dei tasti.
+     */
     private void commandsRetrieval(){
-        // Imposta la finestra per catturare gli input da tastiera
-        JFrame frame = new JFrame("Continuous Character Reader");
+        // Setup del layout del JFrame
+        JFrame frame = new JFrame("Keyboard-Input Distinguisher");
         frame.setSize(300, 100);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new FlowLayout());
+
+        // Setup dell'input field utile a catturare i tasti premuti
         JTextField inputField = new JTextField(20);
         frame.add(inputField);
         inputField.addKeyListener(new KeyAdapter() {
-
+           
+            //Gestione delle pressioni dei tasti
             @Override
             public void keyPressed(KeyEvent e) {
                 pressedKeys.add(e.getKeyCode());
@@ -62,7 +73,8 @@ public class KeyboardInputDistinguisher {
                         break;
                 }
             }
-            
+
+            // Gestione del rilascio dei tasti
             @Override
             public void keyReleased(KeyEvent e) {
                 pressedKeys.remove(e.getKeyCode());
@@ -98,6 +110,11 @@ public class KeyboardInputDistinguisher {
                 }
             }
 
+            /*
+             * Metodo aggiunto:
+             * Questo metodo serve ad aggiornare nel SimpleDriver, 
+             * così da comunicare tramite la variabile ch, l'ultimo tasto premuto.
+             */
             private void updateLastPressedKey() {
                 if (checkUpOrW) {
                     driver.ch = KeyEvent.VK_W;

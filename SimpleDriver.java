@@ -30,6 +30,8 @@ public class SimpleDriver extends Controller {
 	/* Costanti di cambio marcia */
 	final int[] gearUp = {7500, 8000, 8500, 9000, 9500, 0};
 	final int[] gearDown = {0, 2800, 3200, 4800, 5200, 5000};
+	// final int[] gearUp = { 5000, 6000, 6000, 6500, 7000, 0 };
+	// final int[] gearDown = { 0, 2500, 3000, 3000, 3500, 3500 };
 
 	/* Constanti */
 	final int stuckTime = 25;

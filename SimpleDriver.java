@@ -12,14 +12,18 @@ import java.util.HashMap;
 
 public class SimpleDriver extends Controller {
 
-	private final boolean train;
-	private final boolean auto;
-	private final boolean classify;
-	public Action trainingAction;
-	public int ch;
-	private NearestNeighbor knn;
+	//Variabili di configurazione
+	private final boolean train;//Addestramento
+	private final boolean auto;//Guida autonoma predefinita
+	private final boolean classify;//Guida autonoma realizzata 
+
+	public Action trainingAction;//Azione controllante la vettura
+	public int ch;//variabile per salvare il codice relativo al tasto premuto 
+	private NearestNeighbor knn;//classificatore
     private String filename;
 	private boolean correct = false;
+
+	//Collezioni di valori massimi e minimi relativi ai vari dati caratterizzanti l'autovettura
 	private final HashMap<String, Double> maxValues; 
 	private final HashMap<String, Double> minValues;
 
@@ -69,6 +73,7 @@ public class SimpleDriver extends Controller {
 		auto = false;
 		train = false;
 		classify = true;
+
 		trainingAction = new Action();
 
 		maxValues = new HashMap<String, Double>();
@@ -108,8 +113,7 @@ public class SimpleDriver extends Controller {
 			SwingUtilities.invokeLater(() -> new KeyboardInputDistinguisher(this));
 		}
 		if (classify) {
-            //filename = "C:\\Users\\salva\\Desktop\\Universita\\2023-2024\\AI\\AI-Torcs-Project\\ClientTorcSorgente\\classes\\Torcs_data.csv";
-			filename = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\DATASET.csv";
+			filename = "";//Cambiare inserendo il path dov'è locato il file "Torcs_data.csv"
             knn = new NearestNeighbor(filename);
         }
 	}
@@ -327,8 +331,12 @@ public class SimpleDriver extends Controller {
 			return trainingAction;
 		}
 
+		/*
+		 * if aggiunto:
+		 * richiama il metodo utile alla predizione della classe rispetto i dati correnti.
+		 */
 		if (classify) {
-            predictControl(sensors);
+            autonomousControlPrediction(sensors);
 			return trainingAction;
         }
 
@@ -423,17 +431,24 @@ public class SimpleDriver extends Controller {
 		return angles;
 	}
 
-	//Scrittura dati auto su un file csv
+	/*
+	 * Metodo aggiunto:
+	 * Utile ad esportare i dati caratterizzanti la vettura
+	 * su un file CSV che farà da Data-set.
+	 */
 	private void exportToCSV(SensorModel sensors) throws IOException {
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter("Torcs_data.csv", true))) {
 			System.out.println("speed = " + sensors.getSpeed());
+
+			//si differenziano i casi di velocità positiva e negativa
 			if(sensors.getSpeed() >= 0) {
 				bw.append(normalizeSensorValue(sensors.getSpeed(), "speed") + ";");
 			}
 			else if(sensors.getSpeed() < 0) {
 				bw.append(normalizeSensorValue(sensors.getSpeed(), "negativeSpeed") + ";");
 			}
+
 			bw.append(normalizeSensorValue(sensors.getTrackPosition(), "trackPosition") + "; ");
 			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[4], "trackEdgeSensor4") + "; ");
 			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[6], "trackEdgeSensor6") + "; ");
@@ -444,6 +459,7 @@ public class SimpleDriver extends Controller {
 			bw.append(normalizeSensorValue(sensors.getTrackEdgeSensors()[14], "trackEdgeSensor14") + "; ");
 			bw.append(normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis") + "; ");
 
+			//Si salva nel data-set anche la classe, mediante il confronto rispetto al tasto premuto
 			bw.append(
 				(ch == KeyEvent.VK_W ? String.valueOf(0)
             	: ch == KeyEvent.VK_S ? String.valueOf(1)
@@ -461,14 +477,26 @@ public class SimpleDriver extends Controller {
 
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Il metodo sottostante è utile alla normalizzazione dei valori correnti dei vari dati
+	 * mediante la frazione tra due sottrazioni:
+	 * - Valore del dato corrente sottrato del minimo relativo al dato stesso.
+	 * - Valore minimo del dato sottratto al valore massimo dello stesso.
+	 */
 	public double normalizeSensorValue(double value, String sensorIndex){
 		double max = maxValues.get(sensorIndex);
 		double min = minValues.get(sensorIndex);
 		return (value - min) / (max - min);
 	}
 
-	public void predictControl(SensorModel sensors) {
-        //valore di k per il K-NN. Se voglio usare NN, allora k=1 altrimenti k= (es) 5
+	/*
+	 * Metodo aggiunto:
+	 * Il seguente metodo è utile alla predizione della classe da associare ad un vettore di input,
+	 * sfruttando il metodo di classificazione del classificatore,
+	 * richiamando di seguito il metodo dedito al controllo della vettura, in maniera autonoma.
+	 */
+	public void autonomousControlPrediction(SensorModel sensors) {
         int k = 3;
 		double speed = 0;
 		if(sensors.getSpeed() >= 0) {
@@ -477,6 +505,8 @@ public class SimpleDriver extends Controller {
 		else if(sensors.getSpeed() < 0) {
 			speed = normalizeSensorValue(sensors.getSpeed(), "negativeSpeed");
 		}
+
+		//Si costruisce un oggetto identificante il vettore di input
         TrainingData datas = new TrainingData(
 			speed,
 			normalizeSensorValue(sensors.getTrackPosition(), "trackPosition"),
@@ -490,21 +520,24 @@ public class SimpleDriver extends Controller {
 			normalizeSensorValue(sensors.getAngleToTrackAxis(), "angleToTrackAxis") 
 		);
 
-        int predicted = knn.classify(datas, k);
+        int predicted = knn.classify(datas, k);//si passa il vettore di input al classificatore
         System.out.println(predicted);
-        autonomous(predicted, sensors);
+        autonomous(predicted, sensors);//si richiama il controllo autonomo della vettura
     }
 
 	private int frenaCounter = 0;
 
-	private void autonomous(int cls, SensorModel sensors) {
+	/*
+	 * Metodo aggiunto:
+	 * Questo metodo si occupa del controllo autonomo della vettura.
+	 */
+	private void autonomous(int classLabel, SensorModel sensors) {
 
-		//correzione dei fuori pista
-		correctOffTrack(sensors);
+		offTrackRecovery(sensors);//recupero dalle situazioni di off-track
 
 		if(correct == false) {
 
-			switch (cls) {
+			switch (classLabel) {
 				case 0 : {
 					accelera(sensors);
 					break;
@@ -533,30 +566,60 @@ public class SimpleDriver extends Controller {
 		}
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Uno dei motodi controllante le azioni che deve compiere la macchina,
+	 * si occupa della funzione di accelerazione, impostando le variabili utili
+	 * a valori che permettano il sopracitato fenomeno.
+	 */
 	public void accelera(SensorModel sensor){
         trainingAction.accelerate = 1.0;
 		trainingAction.steering = 0.0;
 		trainingAction.brake = 0.0;
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Uno dei motodi controllante le azioni che deve compiere la macchina,
+	 * si occupa della funzione di frenata, impostando le variabili utili
+	 * a valori che permettano il sopracitato fenomeno.
+	 */
     public void frena(){
         trainingAction.brake = 0.8;
 		trainingAction.accelerate = 0.0;
 		trainingAction.steering = 0.0;
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Uno dei motodi controllante le azioni che deve compiere la macchina,
+	 * si occupa della funzione di sterzata sinistra, impostando le variabili utili
+	 * a valori che permettano il sopracitato fenomeno.
+	 */
     public void sterzaSX(){
         trainingAction.steering = +0.5;
 		trainingAction.accelerate = 0.25;
 		trainingAction.brake = 0.0;
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Uno dei motodi controllante le azioni che deve compiere la macchina,
+	 * si occupa della funzione di sterzata destra, impostando le variabili utili
+	 * a valori che permettano il sopracitato fenomeno.
+	 */
     public void sterzaDX(){
         trainingAction.steering = -0.5;
 		trainingAction.accelerate = 0.25;
 		trainingAction.brake = 0.0;
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Uno dei motodi controllante le azioni che deve compiere la macchina,
+	 * si occupa della funzione di retromarcia, impostando le variabili utili
+	 * a valori che permettano il sopracitato fenomeno.
+	 */
     public void retro(){
 		trainingAction.gear = -1;
 		trainingAction.accelerate = 0.6;	
@@ -564,22 +627,34 @@ public class SimpleDriver extends Controller {
 		trainingAction.brake = 0.0;		
     }
 	
+	/*
+	 * Metodo aggiunto:
+	 * Uno dei motodi controllante le azioni che deve compiere la macchina,
+	 * si occupa dell'impostazione delle le variabili utili
+	 * a valori di default che permettano un comportamento ragionevole della vettura.
+	 */
 	public void setDefault(){
 		trainingAction.accelerate = 0.3;
 		trainingAction.steering = 0.0;
 		trainingAction.brake = 0.0;
 	}
 
-	private void correctOffTrack(SensorModel sensors){
-		//rileva fuori pista bordo sx
-		if(sensors.getTrackPosition() > 1.0) {
+	/*
+	 * Metodo aggiunto:
+	 * Si occupa del recupero rispetto alla situazione di fuori-pista.
+	 */
+	private void offTrackRecovery(SensorModel sensors){
+		//Viene determinata la posizione di fuori pista
+
+		//fuori pista a sinistra
+		if(sensors.getTrackPosition() > 1.00) {
 			correct = true;
-			offTrackSterzaDX();
+			offTrackSterzaDX();//viene corretta la traiettoria della macchina
 		}
-		//rileva fuori pista bordo dx
-		else if(sensors.getTrackPosition() < -1.0) {
+		//fuori pista a destra
+		else if(sensors.getTrackPosition() < -1.00) {
 			correct = true;
-			offTrackSterzaSX();
+			offTrackSterzaSX();//viene corretta la traiettoria della macchina
 		}
 		else {
 			correct = false;
@@ -587,12 +662,22 @@ public class SimpleDriver extends Controller {
 
 	}
 
+	/*
+	 * Metodo aggiunto:
+	 * Si occupa del recupero rispetto alla situazione di fuori-pista destro
+	 * permettendo alla macchina di rientrare in carreggiata.
+	 */
 	public void offTrackSterzaSX(){
         trainingAction.steering = +0.15;
 		trainingAction.accelerate = 0.1;
 		trainingAction.brake = 0.0;
     }
 
+	/*
+	 * Metodo aggiunto:
+	 * Si occupa del recupero rispetto alla situazione di fuori-pista sinistro
+	 * permettendo alla macchina di rientrare in carreggiata.
+	 */
     public void offTrackSterzaDX(){
         trainingAction.steering = -0.15;
 		trainingAction.accelerate = 0.1;

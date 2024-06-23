@@ -26,6 +26,8 @@ public class SimpleDriver extends Controller {
 	/* Costanti di cambio marcia */
 	final int[] gearUp = {7500, 8000, 8500, 9000, 9500, 0};
 	final int[] gearDown = {0, 2800, 3200, 4800, 5200, 5000};
+	// final int[] gearUp = { 5000, 6000, 6000, 6500, 7000, 0 };
+	// final int[] gearDown = { 0, 2500, 3000, 3000, 3500, 3500 };
 
 	/* Constanti */
 	final int stuckTime = 25;
@@ -107,7 +109,7 @@ public class SimpleDriver extends Controller {
 		}
 		if (classify) {
             //filename = "C:\\Users\\salva\\Desktop\\Universita\\2023-2024\\AI\\AI-Torcs-Project\\ClientTorcSorgente\\classes\\Torcs_data.csv";
-			filename = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\Torcs_data.csv";
+			filename = "C:\\Users\\Aldo\\Desktop\\AI\\Sorgente\\classes\\DATASET.csv";
             knn = new NearestNeighbor(filename);
         }
 	}
@@ -570,12 +572,12 @@ public class SimpleDriver extends Controller {
 
 	private void correctOffTrack(SensorModel sensors){
 		//rileva fuori pista bordo sx
-		if(sensors.getTrackPosition() > 1.00) {
+		if(sensors.getTrackPosition() > 1.0) {
 			correct = true;
 			offTrackSterzaDX();
 		}
 		//rileva fuori pista bordo dx
-		else if(sensors.getTrackPosition() < -1.00) {
+		else if(sensors.getTrackPosition() < -1.0) {
 			correct = true;
 			offTrackSterzaSX();
 		}

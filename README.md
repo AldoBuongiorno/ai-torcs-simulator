@@ -1,9 +1,7 @@
+# Grand Prix MIVIA 2024
 
-# Gran Premio MIVIA 2024
-
-Il progetto consiste nella realizzazione di un algoritmo di guida autonoma, il quale deve permettere, in base ad un data-set costruito su azioni di un pilota, di far compiere giri di pista ad un veicolo, autonomamente.
-Il veicolo di ciascun gruppo dovrà quindi completare il giro nel minor tempo possibile, quest’ultimo selezionato tra i tempi conseguiti in un numero determinato di giri, senza presenza di altri giocatori.
-
+The project entails creating an algorithm for autonomous driving that will enable a car to drive itself around the track by using a dataset compiled from a driver's activities.
+Then, without other players present, the car in each group will have to finish the lap in the quickest amount of time, chosen from the times recorded in a certain number of laps.
 
 
 
